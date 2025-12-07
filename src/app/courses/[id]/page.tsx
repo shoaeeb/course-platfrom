@@ -18,6 +18,11 @@ const getYouTubeThumbnail = (url: string) => {
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
 };
 
+const getYouTubeEmbedUrl = (url: string) => {
+  const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/)?.[1];
+  return videoId ? `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&controls=1&autoplay=0` : url;
+};
+
 export default function CoursePage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -126,8 +131,31 @@ export default function CoursePage({ params }: { params: { id: string } }) {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
             {hasPurchased ? (
-              <div className="aspect-video bg-black">
-                <ReactPlayer url={course.videoUrl} controls width="100%" height="100%" />
+              <div className="aspect-video bg-black relative">
+                <ReactPlayer 
+                  url={course.videoUrl} 
+                  controls 
+                  width="100%" 
+                  height="100%"
+                  playing={false}
+                  style={{ pointerEvents: 'auto' }}
+                  config={{
+                    youtube: {
+                      playerVars: {
+                        modestbranding: 1,
+                        rel: 0,
+                        showinfo: 0,
+                        fs: 1,
+                        iv_load_policy: 3,
+                        cc_load_policy: 0,
+                        disablekb: 0,
+                      },
+                      embedOptions: {
+                        host: 'https://www.youtube-nocookie.com'
+                      }
+                    }
+                  }}
+                />
               </div>
             ) : (
               <div className="relative aspect-video bg-gray-900">
